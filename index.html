@@ -93,6 +93,16 @@ tr.nk-det>td{background:var(--raise);padding:12px 14px 14px;white-space:normal}
 .nk-pwrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.nk-pwi{width:180px;font-family:ui-monospace,Consolas,monospace;border-color:var(--line-2)!important;background:var(--surface)!important}
 .nk-cred{border-color:var(--in)}
 .nk-credtx{font-family:ui-monospace,Consolas,monospace;font-size:13.5px;background:var(--sunk);border-radius:var(--r-sm);padding:12px 14px;margin:0 0 12px;white-space:pre-wrap;user-select:all}
+
+.nk-ver{all:unset;cursor:pointer;font-size:11.5px;color:var(--side-mut);margin-top:6px}
+.nk-ver:hover{color:var(--side-act);text-decoration:underline}
+.nk-ver b{color:var(--accent);font-weight:600}
+#nk-verbar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:999;display:flex;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--accent);box-shadow:var(--shadow);border-radius:12px;padding:10px 12px;max-width:calc(100% - 32px);flex-wrap:wrap}
+#nk-verbar span{font-weight:600;font-size:14px}
+.nk-wn{max-width:480px}.nk-wnl{max-height:50vh;overflow:auto;margin:12px 0;display:grid;gap:12px;font-size:14px}
+.nk-wnl ul{margin:4px 0 0;padding-left:18px}.nk-wnl li{margin:2px 0}
+.nk-vfoot{margin-top:6px!important;font-size:12px}
+@media (max-width:860px){.nk-ver{margin:0 4px;font-size:11px}}
 </style></head><body>
 <title>NEURO KIDS · финансовая система</title>
 <meta name="robots" content="noindex,nofollow">
@@ -709,7 +719,7 @@ function loginScreen(mode,msg){
   if(mode==='reset')gate(`<h1>Забыли пароль?</h1><p>Попросите администратора системы задать вам новый пароль: это делается в разделе «Пользователи и доступы» за минуту.</p><p class="nk-sub">Если вы входите по настоящей почте, можно получить ссылку для сброса:</p><form id="nk-f"><label>Почта<input name="email" type="email" required autocomplete="email"></label><button class="nk-btn ghost">Отправить ссылку на почту</button><div class="nk-msg"></div></form><p class="nk-foot"><a href="#" data-m="in">Вернуться ко входу</a></p>`);
   else if(mode==='newpass')gate(`<h1>Новый пароль</h1><form id="nk-f"><label>Новый пароль<input name="password" type="password" minlength="8" required autocomplete="new-password"></label><button class="nk-btn">Сохранить пароль</button><div class="nk-msg"></div></form>`);
   else if(mode==='up')gate(`<h1>Вход в систему</h1><p class="nk-sub">Финансовая система · закрытый доступ</p>${tabs}<form id="nk-f"><label>Имя и фамилия<input name="name" required autocomplete="name"></label><label>Рабочая почта<input name="email" type="email" required autocomplete="email"></label><label>Пароль (от 8 символов)<input name="password" type="password" minlength="8" required autocomplete="new-password"></label><button class="nk-btn">Отправить запрос</button><div class="nk-msg"></div></form><p class="nk-foot">После регистрации администратор откроет вам нужные разделы.</p>`);
-  else gate(`<h1>Вход в систему</h1><p class="nk-sub">Финансовая система · закрытый доступ</p>${tabs}<form id="nk-f"><label>Логин<input name="email" type="text" required autocomplete="username" autocapitalize="none" spellcheck="false"></label><label>Пароль<input name="password" type="password" required autocomplete="current-password"></label><button class="nk-btn">Войти</button><div class="nk-msg"></div></form><p class="nk-foot">Логин и пароль выдаёт администратор системы · <a href="#" data-m="reset">Забыли пароль?</a></p>`);
+  else gate(`<h1>Вход в систему</h1><p class="nk-sub">Финансовая система · закрытый доступ</p>${tabs}<form id="nk-f"><label>Логин<input name="email" type="text" required autocomplete="username" autocapitalize="none" spellcheck="false"></label><label>Пароль<input name="password" type="password" required autocomplete="current-password"></label><button class="nk-btn">Войти</button><div class="nk-msg"></div></form><p class="nk-foot">Логин и пароль выдаёт администратор системы · <a href="#" data-m="reset">Забыли пароль?</a></p><p class="nk-foot nk-vfoot">Версия ${window.NK_VERSION||""}</p>`);
   if(msg)gmsg(msg.t,msg.bad);
   document.querySelectorAll('#nk-gate [data-m]').forEach(b=>b.onclick=e=>{e.preventDefault();loginScreen(b.dataset.m)});
   $id('nk-f').onsubmit=async e=>{e.preventDefault();const f=e.target,b=f.querySelector('button');busy(b,true);gmsg('');
@@ -4663,6 +4673,14 @@ function orgFot(all){
    ===================================================================== */
 (function(){
 'use strict';
+/* ---------- версия системы: меняется при каждом обновлении ---------- */
+const NK_VERSION='1.3';
+const NK_CHANGES=[
+  ['1.3','26.11.2026',['Номер версии внизу меню и окно «Что нового»','Система сама сообщает, когда на сайте появилась новая версия']],
+  ['1.2','26.11.2026',['Блок «HR и эффективность»: обзор, финмодель и KPI, ФОТ и оргструктура, себестоимость, прибыльность','ФОТ специалистов в модели считается по окладам, а не только по часам','Зарплата разбита по сотрудникам и месяцам']],
+  ['1.1','26.11.2026',['Логины и пароли выдаёт администратор: кнопка «Добавить сотрудника»','Сброс пароля сотруднику и смена своего пароля','Вход по короткому логину']],
+  ['1.0','25.11.2026',['Закрытая система: вход по паролю, роли и доступы по разделам','Журнал всех действий с откатом изменений','Файлы, экспорт и импорт данных']]];
+window.NK_VERSION=NK_VERSION;
 const NKS=window.NKS={users:null,ua:null,roles:null,log:[],logMore:true,logBusy:false,f:{user:'',type:'',sec:'',from:'',to:'',q:''},open:null,
   kpi:null,files:null,fFolder:'',fq:'',trash:false,imp:null,online:{},confirm:null,lastTab:null,lastCard:null};
 const sb=()=>NKB.sb;
@@ -4709,7 +4727,7 @@ render=function(){
 };
 function meChip(){const side=document.querySelector('.side');if(!side||!NKB.me)return;let c=document.getElementById('nk-me');
   if(!c){c=document.createElement('div');c.id='nk-me';side.appendChild(c)}
-  const html=`<div class="nk-me-n" title="${H(NKB.me.email)}">${H(NKB.me.full_name||NKB.me.email)}</div><div class="nk-me-r">${H(NKB.me.role_name||'')} · ${H(NKB.loginOf(NKB.me.email))}</div><div class="nk-me-b"><button class="btn sm" data-nkact="mypw">Сменить пароль</button><button class="btn sm" data-nkact="logout">Выйти</button></div>`;
+  const html=`<div class="nk-me-n" title="${H(NKB.me.email)}">${H(NKB.me.full_name||NKB.me.email)}</div><div class="nk-me-r">${H(NKB.me.role_name||'')} · ${H(NKB.loginOf(NKB.me.email))}</div><div class="nk-me-b"><button class="btn sm" data-nkact="mypw">Сменить пароль</button><button class="btn sm" data-nkact="logout">Выйти</button></div><button class="nk-ver" data-nkact="whatsnew" title="Что нового">Версия ${NK_VERSION} · ${NK_CHANGES[0][1]}${NKS.newVer?' · <b>есть новая '+H(NKS.newVer)+'</b>':''}</button>`;
   if(c.dataset.h!==html){c.innerHTML=html;c.dataset.h=html}}
 
 /* ---------- маршрутизация новых разделов ---------- */
@@ -4741,6 +4759,20 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-nkact]');i
 document.addEventListener('change',e=>{const el=e.target.closest('[data-nkch]');if(!el)return;const f=ACT[el.dataset.nkch];if(f)Promise.resolve(f(el)).catch(x=>say(errText(x)))});
 let fT=0;document.addEventListener('input',e=>{const el=e.target.closest('[data-nkin]');if(!el)return;clearTimeout(fT);fT=setTimeout(()=>{const f=ACT[el.dataset.nkin];if(f)f(el)},350)});
 ACT.logout=()=>NKB.logout();
+ACT.whatsnew=()=>{let m=document.getElementById('nk-modal');if(!m){m=document.createElement('div');m.id='nk-modal';document.body.appendChild(m)}
+  m.innerHTML=`<div class="nk-card nk-wn"><h1>Что нового</h1><p class="nk-sub">Сейчас открыта версия ${NK_VERSION}${NKS.newVer?` · на сайте уже есть версия ${H(NKS.newVer)}`:''}</p>
+   ${NKS.newVer?'<button class="nk-btn" data-nkact="reload">Обновить до новой версии</button>':''}
+   <div class="nk-wnl">${NK_CHANGES.map(([v,d,L])=>`<div><b>Версия ${v}</b> <span class="mut">· ${d}</span><ul>${L.map(x=>`<li>${H(x)}</li>`).join('')}</ul></div>`).join('')}</div>
+   <button class="nk-btn ghost" data-nkact="mpwclose">Закрыть</button></div>`;m.hidden=false;
+  try{localStorage.setItem('nk_seen_ver',NK_VERSION)}catch(e){}};
+ACT.reload=()=>location.reload();
+async function checkVer(){try{const r=await fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const t=await r.text();const m=t.match(/const NK_VERSION='([^']+)'/);
+  if(m&&m[1]!==NK_VERSION&&NKS.newVer!==m[1]){NKS.newVer=m[1];showVerBar();meChip()}}catch(e){}}
+function showVerBar(){if(document.getElementById('nk-verbar'))return;const d=document.createElement('div');d.id='nk-verbar';d.innerHTML=`<span>Вышла новая версия системы ${H(NKS.newVer)}.</span><button class="btn sm pri" data-nkact="reload">Обновить</button><button class="btn sm" data-nkact="whatsnew">Что нового</button>`;document.body.appendChild(d)}
+window.addEventListener('nk-ready',()=>{setTimeout(checkVer,4000);setInterval(checkVer,5*60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkVer()});
+  let seen=null;try{seen=localStorage.getItem('nk_seen_ver')}catch(e){}
+  if(seen&&seen!==NK_VERSION)setTimeout(()=>{say('Система обновлена до версии '+NK_VERSION+' — внизу меню «Что нового»');try{localStorage.setItem('nk_seen_ver',NK_VERSION)}catch(e){}},1500);
+  else if(!seen){try{localStorage.setItem('nk_seen_ver',NK_VERSION)}catch(e){}}});
 const twice=(key,b,label)=>{if(NKS.confirm!==key){NKS.confirm=key;b.textContent=label||'Точно?';b.classList.add('danger');setTimeout(()=>{if(NKS.confirm===key){NKS.confirm=null;schedule()}},4000);return false}NKS.confirm=null;return true};
 
 /* =====================================================================
