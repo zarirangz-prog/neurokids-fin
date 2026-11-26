@@ -1,4 +1,20 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}/* ---------- NEURO KIDS: вход, доступы, журнал, файлы ---------- */
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}.hr-steps{display:grid;gap:10px}
+.hr-step{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+.hr-step.ok{background:var(--raise)}
+.hr-n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:700;background:var(--sunk);color:var(--ink-2)}
+.hr-step.ok .hr-n{background:var(--in-soft);color:var(--in)}
+.hr-t{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:3px}
+.hr-a{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.hr-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.hr-card{border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:4px;position:relative}
+.hr-card.warn{border-color:var(--warn)}.hr-card.bad{border-color:var(--out)}
+.hr-cn{position:absolute;top:12px;right:14px;font-size:12px;color:var(--muted);font-weight:600}
+.hr-card h3{margin:0;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:600}
+.hr-card .v{font-family:var(--f-display);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.hr-card .s{font-size:13px;color:var(--ink-2);flex:1}
+.hr-cb{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+@media (max-width:700px){.hr-step{grid-template-columns:30px 1fr}.hr-a{grid-column:1/-1;justify-content:flex-start}}
+/* ---------- NEURO KIDS: вход, доступы, журнал, файлы ---------- */
 html.nk-locked body{overflow:hidden}
 #nk-gate{position:fixed;inset:0;z-index:1000;background:var(--bg);display:grid;place-items:center;padding:24px 16px;overflow:auto}
 #nk-gate[hidden]{display:none}
@@ -649,7 +665,7 @@ const NK_CONFIG = {
 (function(){
 'use strict';
 const TAB_SEC={overview:'finance',cal:'finance',pf:'finance',ops:'finance',req:'finance',clients:'finance',suppliers:'finance',contracts:'finance',loans:'finance',fin:'finance',disc:'finance',bank:'finance',report:'finance',reports:'finance',ref:'finance',docs:'finance',
-  payroll:'payroll',model:'plan',cost:'cost',profit:'cost',org:'staff',files:'files',access:'@admin',audit:'@admin'};
+  payroll:'payroll',hr:'plan',model:'plan',cost:'cost',profit:'cost',org:'staff',files:'files',access:'@admin',audit:'@admin'};
 const ERR_SOFT=new Set(['staff','payroll']);   // для этих коллекций приложение само показывает «нет доступа»
 const NKB=window.NKB={sb:null,session:null,me:null,levels:{},secOf:{},cache:{},lis:{},dlis:{},ready:null,_ok:null,
   TAB_SEC,tabAllowed(k){const s=TAB_SEC[k];if(!NKB.me)return false;if(s==='@admin')return !!NKB.me.is_admin;return (NKB.levels[s||'finance']||'none')!=='none'},
@@ -1016,10 +1032,10 @@ function accTable(E){
 function horizon(E,scope,days){let min=Infinity,minD=null;for(let i=0;i<=days;i++){const d=addDays(TODAY,i),b=balanceAt(E,d,true,scope);if(b<min){min=b;minD=d}}return{min,minD,end:balanceAt(E,addDays(TODAY,days),true,scope)}}
 
 /* ---------- render: header & tabs ---------- */
-const TABS=[['overview','Обзор'],['cal','Платёжный календарь'],['pf','План-факт'],['fin','Показатели'],['reports','Отчёты'],['ops','Операции'],['clients','Клиенты'],['suppliers','Поставщики'],['payroll','Зарплата'],['loans','Займы'],['ref','Справочники'],['req','Заявки на оплату'],['contracts','Договоры'],['docs','Документы'],['disc','Дисциплина оплат'],['bank','Банк и комиссии'],['report','Отчёт собственнику'],['model','Финмодель'],['cost','Себестоимость услуг'],['profit','Прибыльность услуг'],['org','Оргструктура'],['audit','Журнал посещений']];
-const ICO={model:'<circle cx="10.5" cy="10.5" r="7.5"/><circle cx="10.5" cy="10.5" r="4"/><circle cx="10.5" cy="10.5" r="1"/>',profit:'<path d="M3 17.5h15"/><path d="M5.5 14v-3M9 14V7M12.5 14v-5M16 14V4"/>',cost:'<circle cx="10.5" cy="10.5" r="7.5"/><path d="M10.5 6v9M13 8c-.5-1-1.5-1.5-2.5-1.5-1.4 0-2.5.8-2.5 2s1 1.6 2.5 2 2.5.8 2.5 2-1.1 2-2.5 2c-1.1 0-2.1-.5-2.6-1.5"/>',org:'<rect x="8" y="2.5" width="5" height="4" rx="1"/><rect x="2.5" y="14.5" width="5" height="4" rx="1"/><rect x="13.5" y="14.5" width="5" height="4" rx="1"/><path d="M10.5 6.5v4M5 14.5v-4h11v4"/>',audit:'<circle cx="10.5" cy="7" r="3"/><path d="M4.5 17.5c.8-3.2 3.2-5 6-5s5.2 1.8 6 5"/><path d="M16 4.5l1.5 1.5L20 3.5"/>',req:'<path d="M5 3h11v15l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5L5 18z"/><path d="M8 7h5M8 10.5h5"/>',contracts:'<path d="M5 3h8l3 3v12H5z"/><path d="M8 12l2 2 3.5-4"/>',docs:'<path d="M3 6v10a1.5 1.5 0 001.5 1.5h12A1.5 1.5 0 0018 16V8a1.5 1.5 0 00-1.5-1.5H10L8.5 4.5h-4A1.5 1.5 0 003 6z"/>',disc:'<circle cx="10.5" cy="10.5" r="7.5"/><path d="M10.5 6.5v4l2.8 2"/>',bank:'<ellipse cx="10.5" cy="6" rx="6" ry="2.5"/><path d="M4.5 6v4.5c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5V6M4.5 10.5V15c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-4.5"/>',report:'<rect x="4" y="3" width="13" height="15" rx="1.5"/><path d="M7.5 14v-3M10.5 14V8M13.5 14v-5"/>',fin:'<circle cx="10.5" cy="10.5" r="7.5"/><path d="M10.5 3v7.5l5.3 5.3"/>',overview:'<path d="M3 13h4v5H3zM8.5 8h4v10h-4zM14 3h4v15h-4z"/>',cal:'<rect x="3" y="4.5" width="15" height="13" rx="2"/><path d="M3 8.5h15M7 2.5v4M14 2.5v4"/>',pf:'<path d="M3 17l4.5-5 3.5 3 6-8"/><path d="M13 7h4v4"/>',ops:'<path d="M4 5h13M4 10h13M4 15h8"/>',reports:'<path d="M5 3h8l3 3v11H5z"/><path d="M8 10h6M8 13h6M8 7h3"/>',clients:'<circle cx="10.5" cy="7" r="3.2"/><path d="M4 17c.8-3.2 3.4-5 6.5-5s5.7 1.8 6.5 5"/>',suppliers:'<path d="M3 7l7.5-4L18 7v8l-7.5 4L3 15z"/><path d="M3 7l7.5 4L18 7M10.5 11v8"/>',payroll:'<rect x="3" y="5" width="15" height="11" rx="2"/><circle cx="10.5" cy="10.5" r="2.3"/>',loans:'<path d="M3 15.5h15M5 15.5V9M10.5 15.5V9M16 15.5V9M2.5 7.5l8-4.5 8 4.5z"/>',ref:'<circle cx="10.5" cy="10.5" r="2.5"/><path d="M10.5 2.5v2.2M10.5 16.3v2.2M2.5 10.5h2.2M16.3 10.5h2.2M4.8 4.8l1.6 1.6M14.6 14.6l1.6 1.6M4.8 16.2l1.6-1.6M14.6 6.4l1.6-1.6"/>'};
-const NAVG=[['Деньги',['overview','cal','pf','ops','req']],['Расчёты',['clients','suppliers','contracts','loans','payroll']],['План и услуги',['model','cost','profit','org']],['Анализ',['fin','disc','bank','report','reports']],['Настройки',['ref','audit']]];
-const TABSUB={model:'цель → продажи → маркетинг → штат → прибыль → KPI',profit:'прибыль и убыток каждой услуги: план и факт по месяцам',cost:'сколько стоит одно занятие и маржа по услугам',org:'штат, вакансии и доли времени по услугам',audit:'кто заходил в систему и что менял',req:'согласование платежей перед оплатой',contracts:'сроки, обороты и сканы по всем договорам',docs:'скан-копии подписанных документов',disc:'кто как платит и кому напомнить',bank:'сколько стоят переводы и где сэкономить',report:'одна страница о месяце для собственника',fin:'выручка, маржа, EBITDA, деньги и оборачиваемость',overview:'остатки, прогноз и то, что требует внимания',cal:'поступления и выплаты по периодам',pf:'план против факта по статьям',ops:'выписки, плановые платежи и разбор',reports:'ДДС, P&L, маржа и валютный риск',clients:'кто сколько должен, документы, оплаты и акты сверки',suppliers:'кому мы должны, какие документы ждём и что оплатили',loans:'выданные и полученные займы',payroll:'выплаты сотрудникам и реестры',ref:'компании, счета, статьи и правила'};
+const TABS=[['overview','Обзор'],['cal','Платёжный календарь'],['pf','План-факт'],['fin','Показатели'],['reports','Отчёты'],['ops','Операции'],['clients','Клиенты'],['suppliers','Поставщики'],['payroll','Зарплата'],['loans','Займы'],['ref','Справочники'],['req','Заявки на оплату'],['contracts','Договоры'],['docs','Документы'],['disc','Дисциплина оплат'],['bank','Банк и комиссии'],['report','Отчёт собственнику'],['hr','HR: обзор и цель'],['model','Финмодель и KPI'],['cost','Себестоимость услуг'],['profit','Прибыльность услуг'],['org','ФОТ и оргструктура'],['audit','Журнал посещений']];
+const ICO={hr:'<circle cx="7.5" cy="7" r="2.6"/><path d="M2.8 15.5c.5-2.5 2.3-3.8 4.7-3.8s4.2 1.3 4.7 3.8"/><path d="M12.5 11.5l2 2 4-4.5"/>',model:'<circle cx="10.5" cy="10.5" r="7.5"/><circle cx="10.5" cy="10.5" r="4"/><circle cx="10.5" cy="10.5" r="1"/>',profit:'<path d="M3 17.5h15"/><path d="M5.5 14v-3M9 14V7M12.5 14v-5M16 14V4"/>',cost:'<circle cx="10.5" cy="10.5" r="7.5"/><path d="M10.5 6v9M13 8c-.5-1-1.5-1.5-2.5-1.5-1.4 0-2.5.8-2.5 2s1 1.6 2.5 2 2.5.8 2.5 2-1.1 2-2.5 2c-1.1 0-2.1-.5-2.6-1.5"/>',org:'<rect x="8" y="2.5" width="5" height="4" rx="1"/><rect x="2.5" y="14.5" width="5" height="4" rx="1"/><rect x="13.5" y="14.5" width="5" height="4" rx="1"/><path d="M10.5 6.5v4M5 14.5v-4h11v4"/>',audit:'<circle cx="10.5" cy="7" r="3"/><path d="M4.5 17.5c.8-3.2 3.2-5 6-5s5.2 1.8 6 5"/><path d="M16 4.5l1.5 1.5L20 3.5"/>',req:'<path d="M5 3h11v15l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5L5 18z"/><path d="M8 7h5M8 10.5h5"/>',contracts:'<path d="M5 3h8l3 3v12H5z"/><path d="M8 12l2 2 3.5-4"/>',docs:'<path d="M3 6v10a1.5 1.5 0 001.5 1.5h12A1.5 1.5 0 0018 16V8a1.5 1.5 0 00-1.5-1.5H10L8.5 4.5h-4A1.5 1.5 0 003 6z"/>',disc:'<circle cx="10.5" cy="10.5" r="7.5"/><path d="M10.5 6.5v4l2.8 2"/>',bank:'<ellipse cx="10.5" cy="6" rx="6" ry="2.5"/><path d="M4.5 6v4.5c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5V6M4.5 10.5V15c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-4.5"/>',report:'<rect x="4" y="3" width="13" height="15" rx="1.5"/><path d="M7.5 14v-3M10.5 14V8M13.5 14v-5"/>',fin:'<circle cx="10.5" cy="10.5" r="7.5"/><path d="M10.5 3v7.5l5.3 5.3"/>',overview:'<path d="M3 13h4v5H3zM8.5 8h4v10h-4zM14 3h4v15h-4z"/>',cal:'<rect x="3" y="4.5" width="15" height="13" rx="2"/><path d="M3 8.5h15M7 2.5v4M14 2.5v4"/>',pf:'<path d="M3 17l4.5-5 3.5 3 6-8"/><path d="M13 7h4v4"/>',ops:'<path d="M4 5h13M4 10h13M4 15h8"/>',reports:'<path d="M5 3h8l3 3v11H5z"/><path d="M8 10h6M8 13h6M8 7h3"/>',clients:'<circle cx="10.5" cy="7" r="3.2"/><path d="M4 17c.8-3.2 3.4-5 6.5-5s5.7 1.8 6.5 5"/>',suppliers:'<path d="M3 7l7.5-4L18 7v8l-7.5 4L3 15z"/><path d="M3 7l7.5 4L18 7M10.5 11v8"/>',payroll:'<rect x="3" y="5" width="15" height="11" rx="2"/><circle cx="10.5" cy="10.5" r="2.3"/>',loans:'<path d="M3 15.5h15M5 15.5V9M10.5 15.5V9M16 15.5V9M2.5 7.5l8-4.5 8 4.5z"/>',ref:'<circle cx="10.5" cy="10.5" r="2.5"/><path d="M10.5 2.5v2.2M10.5 16.3v2.2M2.5 10.5h2.2M16.3 10.5h2.2M4.8 4.8l1.6 1.6M14.6 14.6l1.6 1.6M4.8 16.2l1.6-1.6M14.6 6.4l1.6-1.6"/>'};
+const NAVG=[['Деньги',['overview','cal','pf','ops','req']],['Расчёты',['clients','suppliers','contracts','loans','payroll']],['HR и эффективность',['hr','model','org','cost','profit']],['Анализ',['fin','disc','bank','report','reports']],['Настройки',['ref','audit']]];
+const TABSUB={hr:'расходы, рынок и цель → штат, продажи, маркетинг, ФОТ, маржа, прибыль, KPI',model:'цель → продажи → маркетинг → штат → прибыль → KPI',profit:'прибыль и убыток каждой услуги: план и факт по месяцам',cost:'сколько стоит одно занятие и маржа по услугам',org:'штат, вакансии и доли времени по услугам',audit:'кто заходил в систему и что менял',req:'согласование платежей перед оплатой',contracts:'сроки, обороты и сканы по всем договорам',docs:'скан-копии подписанных документов',disc:'кто как платит и кому напомнить',bank:'сколько стоят переводы и где сэкономить',report:'одна страница о месяце для собственника',fin:'выручка, маржа, EBITDA, деньги и оборачиваемость',overview:'остатки, прогноз и то, что требует внимания',cal:'поступления и выплаты по периодам',pf:'план против факта по статьям',ops:'выписки, плановые платежи и разбор',reports:'ДДС, P&L, маржа и валютный риск',clients:'кто сколько должен, документы, оплаты и акты сверки',suppliers:'кому мы должны, какие документы ждём и что оплатили',loans:'выданные и полученные займы',payroll:'выплаты сотрудникам и реестры',ref:'компании, счета, статьи и правила'};
 function renderHeader(){
   const comps=companyList();
   if(st.scope!=='group'&&!st.companies[st.scope]&&st.loaded.has('companies'))st.scope='group';
@@ -1054,7 +1070,7 @@ function render(){
   if(!st.canWrite)html+=`<div class="banner"><span>У вас доступ только на просмотр. Право правки открывает администратор в разделе «Пользователи и доступы».</span></div>`;
   if(!companyList().length){html+=`<div class="panel empty">Пока нет ни одной компании. Добавьте компании группы и их счета во вкладке «Справочники».</div>`}
   const tn=Object.fromEntries(TABS);if(!(st.gq&&String(st.gq).trim().length>=2))html=`<div class="ph"><h1>${tn[st.tab]||'Обзор'}</h1><span>${esc(scopeName())} · ${TABSUB[st.tab]||''}</span></div>`+html;
-  if(st.gq&&String(st.gq).trim().length>=2)html+=searchView(E);else html+=({audit:E=>vAudit(E),files:E=>vFilesNK(E),access:E=>vAccessNK(E),overview:E=>st.accSel?vAccStmt(E):vOverview(E),cal:vCal,pf:vPF,ops:vOps,clients:E=>vCP(E,'in'),suppliers:E=>vCP(E,'out'),payroll:vPayroll,loans:vLoans,ref:vRef,reports:vReports,fin:vFin,req:vReq,contracts:vCtrs,docs:vDocs,disc:vDisc,bank:vBank,report:vReport,model:vModel,cost:vCost,profit:vProfit,org:vOrg}[st.tab]||vOverview)(E);
+  if(st.gq&&String(st.gq).trim().length>=2)html+=searchView(E);else html+=({hr:E=>vHR(E),audit:E=>vAudit(E),files:E=>vFilesNK(E),access:E=>vAccessNK(E),overview:E=>st.accSel?vAccStmt(E):vOverview(E),cal:vCal,pf:vPF,ops:vOps,clients:E=>vCP(E,'in'),suppliers:E=>vCP(E,'out'),payroll:vPayroll,loans:vLoans,ref:vRef,reports:vReports,fin:vFin,req:vReq,contracts:vCtrs,docs:vDocs,disc:vDisc,bank:vBank,report:vReport,model:vModel,cost:vCost,profit:vProfit,org:vOrg}[st.tab]||vOverview)(E);
   m.innerHTML=html;addXlsButtons(m);try{bindCharts()}catch(e){}
 }
 
@@ -4382,6 +4398,12 @@ function modelCalc(over){
   const c1=Math.max(0.01,P('conv1')/100),c2=Math.max(0.01,P('conv2')/100);
   const first=paying/c2,leads=first/c1,mkt=Math.max(leads*(+P('cpl')||0),0);
   const entrySess=S.filter(v=>v.entry).reduce((a,v)=>a+R[v.id].sess,0);
+  const specStaff=work.filter(s=>s.kind!=='ovh').map(s=>{let l=0;for(const [k,p] of Object.entries(s.alloc||{})){const r=R[k];if(r&&r.util!=null)l+=((+p||0)/100)*r.util}return{s,load:l}});
+  const hires=S.map(v=>{const r=R[v.id],gap=r.needFte-r.haveFte;return gap>0.25?{v,r,n:Math.ceil(gap-0.25),pos:r.mainPos,sal:hcost[v.id]&&hcost[v.id].h>0?hcost[v.id].c/(1+soc)/(hcost[v.id].h)*(+P('specHours')):+P('specSalary')}:null}).filter(Boolean);
+  // ФОТ специалистов — фиксированные оклады штата по плану (текущие + новые позиции), а не только оплаченные часы
+  const specVar=T.spec,specFix=specStaff.reduce((a,x)=>a+staffCost(x.s),0)+hires.reduce((a,x)=>a+x.n*x.sal*(1+soc),0);
+  if(specFix>0.5){const k=specVar>0.5?specFix/specVar:null;for(const v of S){const r=R[v.id];r.spec=k!=null?r.spec*k:specFix/S.length}T.spec=specFix}
+  T.specVar=specVar;
   // P&L в месяц
   const vatR=Math.max(0,+P('vat')||0)/100,vat=T.rev*vatR/(1+vatR);
   const varC=T.spec+T.mat+T.direct,gross=T.rev-vat-varC,ebitda=gross-ovhStaff-other-mkt;
@@ -4391,11 +4413,9 @@ function modelCalc(over){
   for(const v of S){const r=R[v.id];r.ovh=T.spec>0.5?pool*r.spec/T.spec:(S.length?pool/S.length:0);r.full=r.spec+r.mat+r.direct+r.ovh;r.unit=r.sess>0?r.full/r.sess:null;
     r.rec=r.unit!=null?r.unit/(1-Math.min(0.9,P('margin')/100)):null;r.mrg=r.unit!=null&&r.p?(r.p-r.unit)/r.p:null}
   // точка безубыточности по выручке
-  const fixed=ovhStaff+other,varRatio=T.rev>0.5?(vat+varC+mkt+(P('taxMode')==='turn'?(T.rev-vat)*P('tax')/100:0))/T.rev:null;
+  const fixed=ovhStaff+other+T.spec,varRatio=T.rev>0.5?(vat+T.mat+T.direct+mkt+(P('taxMode')==='turn'?(T.rev-vat)*P('tax')/100:0))/T.rev:null;
   const be=varRatio!=null&&varRatio<1?fixed/(1-varRatio):null;
   // штат по плану
-  const specStaff=work.filter(s=>s.kind!=='ovh').map(s=>{let l=0;for(const [k,p] of Object.entries(s.alloc||{})){const r=R[k];if(r&&r.util!=null)l+=((+p||0)/100)*r.util}return{s,load:l}});
-  const hires=S.map(v=>{const r=R[v.id],gap=r.needFte-r.haveFte;return gap>0.25?{v,r,n:Math.ceil(gap-0.25),pos:r.mainPos,sal:hcost[v.id]&&hcost[v.id].h>0?hcost[v.id].c/(1+soc)/(hcost[v.id].h)*(+P('specHours')):+P('specSalary')}:null}).filter(Boolean);
   return{S,R,T,vat,mix,price,ovhPos,ovhStaff,other,mktItems,paying,first,leads,mkt,entrySess,gross,ebitda,tax,net,be,fixed,specStaff,hires,load,P,Rm,c1,c2,mk};
 }
 
@@ -4422,6 +4442,42 @@ function vModel(){
   h+=({goal:mdlGoal,price:mdlPrice,sales:mdlSales,team:mdlTeam,pnl:mdlPnl,kpi:mdlKpi}[sec]||mdlGoal)(M,F);
   return h;
 }
+
+function vHR(){
+  if(!['services','staff','citems','ccfg','plan','comp'].every(k=>st.loaded.has(k)))return `<div class="panel empty">Загружаю данные…</div>`;
+  const M=modelCalc(),F=factRev(),tgt=+PV('target')||0,y=PV('year');
+  let C=null;try{if(!st.staffDenied)C=costCalc('now')}catch(e){}
+  const work=Object.values(st.staff).filter(s=>s.status==='work'||!s.status),vac=Object.values(st.staff).filter(s=>s.status==='hire');
+  const S=M.S,priced=S.filter(v=>+v.price>0).length,withUnit=S.filter(v=>M.R[v.id]&&M.R[v.id].unit!=null).length;
+  const mk=market(),withMk=S.filter(v=>mk[v.id]).length,comps=Object.keys(st.comp||{}).length;
+  const itemsN=Object.keys(st.citems||{}).length,convSet=st.plan&&st.plan.conv1!=null&&st.plan.conv2!=null;
+  const ok=b=>b?'<span class="pill fact">готово</span>':'<span class="pill over">нужно заполнить</span>';
+  const go=(tab,sec,l)=>`<button class="btn sm" data-act="${sec?'hrGo':'tab'}" data-id="${sec||tab}">${l||'Открыть'}</button>`;
+  // оценка цели
+  let verdict='—',vcls='done';if(tgt){const g=F.run>0?tgt/F.run:null;if(g==null){verdict='нет истории для сравнения';vcls='plan'}else if(g<=1.15){verdict='реалистично';vcls='fact'}else if(g<=1.6){verdict='амбициозно, но достижимо';vcls='plan'}else if(g<=2.5){verdict='очень амбициозно';vcls='over'}else{verdict='нереалистично при текущей модели';vcls='crit'}}
+  const steps=[
+    ['1','Расходы и ФОТ',`${work.length} в штате · ФОТ ${C?mln(C.fotAll)+' в месяц':'—'} · ${itemsN} статей прочих расходов · факт расходов из выписок`,work.length>0&&itemsN>0,go('org',null,'Оргструктура')+' '+go('cost',null,'Расходы')],
+    ['2','Продукты и себестоимость',`${S.length} услуг · цена есть у ${priced} · себестоимость посчитана для ${withUnit}`,S.length>0&&withUnit>0,go('cost',null,'Услуги')],
+    ['3','Анализ конкурентов',`${comps} конкурентов · средняя рыночная цена есть для ${withMk} из ${S.length} услуг`,comps>0&&withMk>0,go('model','price','Конкуренты')],
+    ['4','Цель выручки и конверсия',tgt?`${mln(tgt)} на ${y} год · оценка: <span class="pill ${vcls}">${verdict}</span> · конверсии ${PV('conv1')}% и ${PV('conv2')}%${convSet?'':' (по умолчанию — проверьте)'}`:'цель на год не задана',tgt>0&&convSet,go('model','goal','Цель')]];
+  const inputs=`<section class="panel"><div class="panel-h"><div><h2>Что загружено</h2><div class="note">четыре блока данных, из которых система считает всё остальное</div></div></div>
+   <div class="hr-steps">${steps.map(([n,t,d,s,b])=>`<div class="hr-step ${s?'ok':''}"><div class="hr-n">${n}</div><div class="hr-b"><div class="hr-t"><b>${t}</b> ${ok(s)}</div><div class="mut">${d}</div></div><div class="hr-a">${b}</div></div>`).join('')}</div></section>`;
+  if(!tgt)return inputs+`<section class="panel empty">Впишите годовую цель выручки — <button class="btn sm pri" data-act="hrGo" data-id="goal">Задать цель</button> — и здесь появятся штат, план продаж и маркетинга, ФОТ, маржа, прибыль и KPI.</section>`;
+  const hiresN=M.hires.reduce((a,x)=>a+x.n,0),low=(M.specStaff||[]).filter(x=>x.load<0.5),over=(M.specStaff||[]).filter(x=>x.load>1.05);
+  const fotPlan=M.T.spec+M.ovhStaff,fotNow=C?C.fotAll:null,net0=M.T.rev-M.vat,gm=net0>0.5?M.gross/net0:null;
+  const card=(n,t,big,sub,btn,cls)=>`<div class="hr-card ${cls||''}"><div class="hr-cn">${n}</div><h3>${t}</h3><div class="v">${big}</div><div class="s">${sub}</div><div class="hr-cb">${btn}</div></div>`;
+  const cards=[
+    card(1,'Оптимальный штат',hiresN?'+'+hiresN+' чел.':'штата хватает',[M.hires.length?'нанять: '+M.hires.map(x=>esc(x.pos)+(x.n>1?' ×'+x.n:'')).join(', '):'',low.length?'недогружены: '+low.map(x=>esc(x.s.name||x.s.pos)).slice(0,3).join(', ')+(low.length>3?' и др.':''):'',over.length?'перегружены: '+over.length:''].filter(Boolean).join(' · ')||'загрузка в норме',go('model','team','Штат по плану'),hiresN||low.length?'warn':''),
+    card(2,'Лидогенерация',Math.ceil(M.leads)+' лидов/мес',`бюджет ${mln(M.mkt)} в месяц · лид ${som(+PV('cpl'))} · CAC ${M.paying?mln(M.mkt/M.paying):'—'}`,go('model','sales','План маркетинга')),
+    card(3,'План продаж',Math.round(M.T.sess)+' занятий/мес',`${Math.ceil(M.first)} первичных приёмов · ${Math.ceil(M.paying)} новых клиентов на программы в месяц`,go('model','sales','План продаж')),
+    card(4,'ФОТ по позициям',mln(fotPlan)+'/мес',`${fotNow!=null?'сейчас '+mln(fotNow)+' · '+(fotPlan>fotNow?'+':'')+mln(fotPlan-fotNow):''} · ${pc0(M.T.rev>0?fotPlan/M.T.rev:null)} выручки`,go('model','team','ФОТ по плану')+' '+go('org',null,'Галочки ФОТ')),
+    card(5,'Маржинальность',pc0(gm),`валовая по модели · цель ${PV('margin')}% — меняется вручную`,go('model','price','Себестоимость и цены')),
+    card(6,'Финпоказатели',mln(M.net*12)+' чистыми',`выручка ${mln(M.T.rev*12)} · EBITDA ${mln(M.ebitda*12)} · безубыточность ${M.be?mln(M.be*12):'—'} в год`,go('model','pnl','Финпоказатели'),M.net<0?'bad':''),
+    card(7,'KPI сотрудников',(work.length+hiresN)+' позиций',`план на месяц для каждого сотрудника по оргструктуре`,go('model','kpi','KPI'))];
+  return `${inputs}<section class="panel"><div class="panel-h"><div><h2>Что рассчитала система · цель ${mln(tgt)} на ${y}</h2><div class="note">пересчитывается сразу при изменении цели, конверсии, цен, расходов или галочек в оргструктуре</div></div></div>
+   <div class="hr-cards">${cards.join('')}</div></section>`;
+}
+XACT.hrGo=b=>{st.tab='model';st.mdlSec=b.dataset.id;schedule();window.scrollTo({top:0})};
 
 function mdlGoal(M,F){
   const tgt=+PV('target')||0,y=PV('year');
